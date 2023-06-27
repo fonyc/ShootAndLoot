@@ -7,6 +7,12 @@
 #include "InputActionValue.h"
 #include "ShooterCharacter.generated.h"
 
+//Forward declarations
+class UInputMappingContext;
+class UInputAction;
+class USpringArmComponent;
+class UCameraComponent;
+
 UCLASS()
 class SHOOTANDLOOT_API AShooterCharacter : public ACharacter
 {
@@ -19,12 +25,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputMappingContext* CharacterIMP;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-    class UInputMappingContext* CharacterIMP;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-    class UInputAction* MoveAction;
+    UInputAction* MoveAction;
 
     void Move(const FInputActionValue& Value);
 
@@ -38,11 +44,11 @@ public:
 private:
 	//Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+	USpringArmComponent* CameraBoom;
 
     //Camera that follows the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-    class UCameraComponent* FollowCamera;
+    UCameraComponent* FollowCamera;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

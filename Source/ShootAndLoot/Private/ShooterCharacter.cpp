@@ -5,6 +5,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "Components/InputComponent.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -39,6 +41,10 @@ void AShooterCharacter::BeginPlay()
 
  void AShooterCharacter::Move(const FInputActionValue& Value)
  {
+    if(const bool CurrentValue = Value.Get<bool>())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("IA_Move Triggerd!"));
+    }
  }
 
 // Called every frame
@@ -53,5 +59,9 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+    if(UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+    {
+        EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered,this,&AShooterCharacter::Move);
+    }
 }
 
