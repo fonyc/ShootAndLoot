@@ -4,6 +4,7 @@
 #include "ShooterCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -25,8 +26,20 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
     Super::BeginPlay();
-    UE_LOG(LogTemp, Warning, TEXT("Instance name: from ShooterCharacter %s"), *GetName());
+
+     if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+     {
+         if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+             ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+         {
+             Subsystem->AddMappingContext(CharacterIMP, 0);
+         }
+     }
 }
+
+ void AShooterCharacter::Move(const FInputActionValue& Value)
+ {
+ }
 
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)

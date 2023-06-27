@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "ShooterCharacter.generated.h"
 
 UCLASS()
@@ -18,6 +19,14 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+    class UInputMappingContext* CharacterIMP;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+    class UInputAction* MoveAction;
+
+    void Move(const FInputActionValue& Value);
 
 public:	
 	// Called every frame
