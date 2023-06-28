@@ -78,7 +78,13 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     //Bind functions to action mappings (deprecated way)
     PlayerInputComponent->BindAxis("MoveForward", this, &AShooterCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &AShooterCharacter::MoveRight);
+    
+    //Keyboard/Gamepad turns
     PlayerInputComponent->BindAxis("TurnRate", this, &AShooterCharacter::TurnAtRate);
     PlayerInputComponent->BindAxis("LookUpRate", this, &AShooterCharacter::LookUpAtRate);
+    
+    //Mouse turns
+    PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+    PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 }
 
