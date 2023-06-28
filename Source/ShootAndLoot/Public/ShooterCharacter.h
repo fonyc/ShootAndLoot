@@ -32,12 +32,27 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
     UInputAction* MoveAction;
 
-    void Move(const FInputActionValue& Value);
+	//Called for FW/BW inputs
+    void MoveForward(const float Value);
+
+	//Called for right/left inputs
+	void MoveRight(const float Value);
+
+	/**
+	 * @brief Called via Input to turn at a given rate
+	 * @param Rate Normalized rate, which means 1.0 = 100% 
+	 */
+	void TurnAtRate(float Rate);
+
+	/**
+	 * @brief Called via input to look up/down at a given rate
+	 * @param Rate Normalized rate -> 1.0 = 100% 
+	 */
+	void LookUpAtRate(float Rate);
+
+	
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -49,6 +64,14 @@ private:
     //Camera that follows the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
     UCameraComponent* FollowCamera;
+
+	//Base turn rate [dg/sec]
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float BaseTurnRate;
+
+	//Base look up/down rate [dg/sec]
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float BaseLookUpRate;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
