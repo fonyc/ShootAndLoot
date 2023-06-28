@@ -6,8 +6,8 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-#ifndef REQUESTSUCCEED_GENERATED_H
-#define REQUESTSUCCEED_GENERATED_H
+#ifndef CONNECTIONINFO_GENERATED_H
+#define CONNECTIONINFO_GENERATED_H
 
 
 #include "protocol/Protocol.h"
@@ -44,8 +44,6 @@
 #include "thirdparty.hpp"
 #include "instantiations_UE4Library.h"
 
-#include "RequestResultBase.Generated.h"
-
 #include "UE4TypesMarshallers.h"
 #include "Runtime/Core/Public/Containers/Array.h"
 #include "Runtime/Core/Public/Containers/ContainerAllocationPolicies.h"
@@ -61,12 +59,13 @@
 #endif
 
 /// <summary>
-/// <p>Generated from: UE4Library.kt:59</p>
+/// <p>Generated from: UE4Library.kt:209</p>
 /// </summary>
 namespace JetBrains {
 namespace EditorPlugin {
 
-class RIDERLINK_API RequestSucceed : public RequestResultBase {
+// data
+class RIDERLINK_API ConnectionInfo : public rd::IPolymorphicSerializable {
 
 private:
     // custom serializers
@@ -76,6 +75,10 @@ public:
 
 protected:
     // fields
+    rd::Wrapper<std::wstring> projectName_;
+    rd::Wrapper<std::wstring> executableName_;
+    int32_t processId_;
+    
 
 private:
     // initializer
@@ -83,24 +86,36 @@ private:
 
 public:
     // primary ctor
-    explicit RequestSucceed(int32_t requestID_);
+    ConnectionInfo(rd::Wrapper<std::wstring> projectName_, rd::Wrapper<std::wstring> executableName_, int32_t processId_);
+    
+    // deconstruct trait
+    #ifdef __cpp_structured_bindings
+    template <size_t I>
+    decltype(auto) get() const
+    {
+        if constexpr (I < 0 || I >= 3) static_assert (I < 0 || I >= 3, "I < 0 || I >= 3");
+        else if constexpr (I==0)  return static_cast<const std::wstring&>(get_projectName());
+        else if constexpr (I==1)  return static_cast<const std::wstring&>(get_executableName());
+        else if constexpr (I==2)  return static_cast<const int32_t&>(get_processId());
+    }
+    #endif
     
     // default ctors and dtors
     
-    RequestSucceed() = delete;
+    ConnectionInfo() = delete;
     
-    RequestSucceed(RequestSucceed const &) = default;
+    ConnectionInfo(ConnectionInfo const &) = default;
     
-    RequestSucceed& operator=(RequestSucceed const &) = default;
+    ConnectionInfo& operator=(ConnectionInfo const &) = default;
     
-    RequestSucceed(RequestSucceed &&) = default;
+    ConnectionInfo(ConnectionInfo &&) = default;
     
-    RequestSucceed& operator=(RequestSucceed &&) = default;
+    ConnectionInfo& operator=(ConnectionInfo &&) = default;
     
-    virtual ~RequestSucceed() = default;
+    virtual ~ConnectionInfo() = default;
     
     // reader
-    static RequestSucceed read(rd::SerializationCtx& ctx, rd::Buffer & buffer);
+    static ConnectionInfo read(rd::SerializationCtx& ctx, rd::Buffer & buffer);
     
     // writer
     void write(rd::SerializationCtx& ctx, rd::Buffer& buffer) const override;
@@ -110,6 +125,9 @@ public:
     // identify
     
     // getters
+    std::wstring const & get_projectName() const;
+    std::wstring const & get_executableName() const;
+    int32_t const & get_processId() const;
     
     // intern
 
@@ -119,8 +137,8 @@ private:
 
 public:
     // equality operators
-    friend bool operator==(const RequestSucceed &lhs, const RequestSucceed &rhs);
-    friend bool operator!=(const RequestSucceed &lhs, const RequestSucceed &rhs);
+    friend bool operator==(const ConnectionInfo &lhs, const ConnectionInfo &rhs);
+    friend bool operator!=(const ConnectionInfo &lhs, const ConnectionInfo &rhs);
     // hash code trait
     size_t hashCode() const noexcept override;
     // type name trait
@@ -134,7 +152,7 @@ private:
 
 public:
     // external to string
-    friend std::string to_string(const RequestSucceed & value);
+    friend std::string to_string(const ConnectionInfo & value);
 };
 
 }
@@ -144,13 +162,29 @@ public:
 namespace rd {
 
 template <>
-struct hash<JetBrains::EditorPlugin::RequestSucceed> {
-    size_t operator()(const JetBrains::EditorPlugin::RequestSucceed & value) const noexcept {
+struct hash<JetBrains::EditorPlugin::ConnectionInfo> {
+    size_t operator()(const JetBrains::EditorPlugin::ConnectionInfo & value) const noexcept {
         return value.hashCode();
     }
 };
 
 }
+
+#ifdef __cpp_structured_bindings
+// tuple trait
+namespace std {
+
+template <>
+class tuple_size<JetBrains::EditorPlugin::ConnectionInfo> : public integral_constant<size_t, 3> {};
+
+template <size_t I>
+class tuple_element<I, JetBrains::EditorPlugin::ConnectionInfo> {
+public:
+    using type = decltype (declval<JetBrains::EditorPlugin::ConnectionInfo>().get<I>());
+};
+
+}
+#endif
 
 #ifdef _MSC_VER
 #pragma warning( pop )
@@ -158,4 +192,4 @@ struct hash<JetBrains::EditorPlugin::RequestSucceed> {
 
 
 
-#endif // REQUESTSUCCEED_GENERATED_H
+#endif // CONNECTIONINFO_GENERATED_H
