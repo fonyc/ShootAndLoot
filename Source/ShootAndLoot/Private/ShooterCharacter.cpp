@@ -70,6 +70,11 @@ void AShooterCharacter::MoveRight(const float Value)
     }
 }
 
+void AShooterCharacter::FireWeapon()
+{
+    UE_LOG(LogTemp, Warning, TEXT("Weapon Fired!"))
+}
+
 void AShooterCharacter::TurnAtRate(float Rate)
 {
     AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
@@ -103,5 +108,6 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     //Actions
     PlayerInputComponent->BindAction("Jump", IE_Pressed,this, &ACharacter::Jump);
     PlayerInputComponent->BindAction("Jump", IE_Released,this, &ACharacter::StopJumping);
+    PlayerInputComponent->BindAction("FireButton", IE_Pressed,this, &AShooterCharacter::FireWeapon);
 }
 

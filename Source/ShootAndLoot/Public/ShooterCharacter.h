@@ -38,6 +38,9 @@ protected:
 	//Called for right/left inputs
 	void MoveRight(const float Value);
 
+	//Called when Firing button is pressed
+	void FireWeapon();
+
 	/**
 	 * @brief Called via Input to turn at a given rate
 	 * @param Rate Normalized rate, which means 1.0 = 100% 
