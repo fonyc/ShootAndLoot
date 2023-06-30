@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "InputActionValue.h"
 #include "ShooterCharacter.generated.h"
 
 //Forward declarations
@@ -14,6 +13,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class USoundCue;
 class UParticleSystem;
+class UAnimMontage;
 
 UCLASS()
 class SHOOTANDLOOT_API AShooterCharacter : public ACharacter
@@ -75,6 +75,9 @@ private:
 	//Base look up/down rate [dg/sec]
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	float BaseLookUpRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HipFireMontage;
 
 	//RAndomized gunshot sounds
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
