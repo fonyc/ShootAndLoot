@@ -85,9 +85,9 @@ void AShooterCharacter::FireWeapon()
     {
         const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
 
-        if(MuzzleFlash)
+        if(MuzzleFlash_Particles)
         {
-            UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
+            UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash_Particles, SocketTransform);
         }
         
         FHitResult HitResult;
@@ -102,6 +102,11 @@ void AShooterCharacter::FireWeapon()
         {
             DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f);
             DrawDebugPoint(GetWorld(),HitResult.Location, 5.f, FColor::Red, false, 2.f);
+
+            if(BulletHit_Particles)
+            {
+                UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHit_Particles, HitResult.Location);
+            }
         }
         
     }

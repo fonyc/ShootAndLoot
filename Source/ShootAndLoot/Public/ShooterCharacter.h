@@ -85,7 +85,10 @@ private:
 
 	//VFX from gunshots
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
-    UParticleSystem* MuzzleFlash;
+    UParticleSystem* MuzzleFlash_Particles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* BulletHit_Particles;
 
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
