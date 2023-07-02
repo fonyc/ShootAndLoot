@@ -25,14 +25,15 @@ AShooterCharacter::AShooterCharacter()
 	CameraBoom->SetupAttachment(RootComponent); //Camera follows the player at this distance behind the controller
 	CameraBoom->TargetArmLength = 300.f; //Rotate the arm based on the controller
 	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->SocketOffset = FVector(0.f, 50.f, 50.f);
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); //Attach camera to end of CameraBoom
 	FollowCamera->bUsePawnControlRotation = false; // Stop camera from rotate relative to the arm
 
-	//Ensures we dont use the controller rotation for the character mesh
+	//Controls the use of controller rotation for the character mesh
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
 	//Configure Character Movement
