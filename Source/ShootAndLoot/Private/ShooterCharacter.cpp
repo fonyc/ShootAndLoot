@@ -91,6 +91,7 @@ void AShooterCharacter::FireWeapon()
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash_Particles, SocketTransform);
 		}
 
+		#pragma region GET VIEWPORT SIZE AND CROSSHAIRS CENTER
 		//Get Current Size of the viewport
 		FVector2D ViewportSize;
 		if (GEngine && GEngine->GameViewport)
@@ -109,7 +110,9 @@ void AShooterCharacter::FireWeapon()
 		bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
 		                                                               CrosshairLocation,
 		                                                               CrosshairWorldPosition, CrosshairWorldDirection);
-		//The De-projection was Successfull ?
+		#pragma endregion
+		
+		//De-projection was successful
 		if (bScreenToWorld)
 		{
 			FHitResult ScreenTraceHit;
@@ -118,17 +121,32 @@ void AShooterCharacter::FireWeapon()
 
 			FVector BeamEndPoint{End};
 
+			//Trace between the crosshairs and the object
 			GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECC_Visibility);
 
+			//If there was a hit between Weapon Barrel + object -> Change BeamEndpoint to that place and spawn particles
 			if (ScreenTraceHit.bBlockingHit)
 			{
 				BeamEndPoint = ScreenTraceHit.Location;
 
-				if (BulletHit_Particles)
+				FHitResult WeaponTraceHit;
+				const FVector WeaponTraceStart {SocketTransform.GetLocation()};
+				const FVector WeaponTraceEnd {BeamEndPoint};
+				GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart,WeaponTraceEnd,ECC_Visibility);
+
+				//If there is an object between the barrel and beam and the CrossHairs are not exact -> change the end point
+				if(WeaponTraceHit.bBlockingHit)
 				{
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHit_Particles, ScreenTraceHit.Location);
+					BeamEndPoint = WeaponTraceHit.Location;
 				}
 
+				//Spawn bullet hit particles at Beam endpoint
+				if (BulletHit_Particles)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHit_Particles, BeamEndPoint);
+				}
+
+				//Spawn Smoke trail from Weapon socket to the Beam Endpoint
 				if (SmokeTrail)
 				{
 					UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
