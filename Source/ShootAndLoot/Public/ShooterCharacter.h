@@ -43,6 +43,8 @@ protected:
 	//Called when Firing button is pressed
 	void FireWeapon();
 
+	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
+
 	/**
 	 * @brief Called via Input to turn at a given rate
 	 * @param Rate Normalized rate, which means 1.0 = 100% 
