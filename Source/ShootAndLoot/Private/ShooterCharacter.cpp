@@ -93,6 +93,8 @@ void AShooterCharacter::FireWeapon()
 		}
 
 		FVector BeamEnd;
+
+		//Detects which is the correct end location for the bullet from CrossHairs-target and checking if there is an obstacle between them
 		if(GetBeamEndLocation(SocketTransform.GetLocation(),BeamEnd))
 		{
 			if(BulletHit_Particles)
@@ -116,7 +118,9 @@ void AShooterCharacter::FireWeapon()
 		AnimInstance->Montage_JumpToSection(FName("StartFire"));
 	}
 }
-
+/*
+ *@d
+ **/
 bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
 {
 	//Get Current Size of the viewport
