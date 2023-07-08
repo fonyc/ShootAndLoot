@@ -45,6 +45,9 @@ protected:
 
 	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
 
+	void AimingButtonPressed();
+	void AimingButtonReleased();
+
 	/**
 	 * @brief Called via Input to turn at a given rate
 	 * @param Rate Normalized rate, which means 1.0 = 100% 
@@ -95,7 +98,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* SmokeTrail;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	bool bIsAiming;
+
+	float CameraDefaultFOV;
+	float CameraZoomedFOV;
+	
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	FORCEINLINE UCameraComponent* GetCamera() const { return FollowCamera; }
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
