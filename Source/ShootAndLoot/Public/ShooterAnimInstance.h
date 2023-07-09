@@ -43,4 +43,7 @@ private:
 	/* Offset Yaw used for strafing in the last frame (used for stopping when velocity is 0)*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float LastMovementOffsetYaw;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	bool bIsAiming;
 };

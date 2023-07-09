@@ -28,6 +28,8 @@ void UShooterAnimInstance::UpdateAnimationProperties(float Deltatime)
 		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
 		
 		if(ShooterCharacter->GetVelocity().Size() > 0) LastMovementOffsetYaw = MovementOffsetYaw;
+
+		bIsAiming = ShooterCharacter->GetIsAiming();
 	}
 }
 
