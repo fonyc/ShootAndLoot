@@ -25,17 +25,17 @@ public:
 	AShooterCharacter();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+	virtual void Tick(float DeltaSeconds) override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputMappingContext* CharacterIMP;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-    UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* MoveAction;
 
 	//Called for FW/BW inputs
-    void MoveForward(const float Value);
+	void MoveForward(const float Value);
 
 	//Called for right/left inputs
 	void MoveRight(const float Value);
@@ -47,6 +47,8 @@ protected:
 
 	void AimingButtonPressed();
 	void AimingButtonReleased();
+
+	void ZoomInterpolation(float DeltaTime);
 
 	/**
 	 * @brief Called via Input to turn at a given rate
@@ -60,7 +62,7 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
-public:	
+public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -69,9 +71,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
-    //Camera that follows the character
+	//Camera that follows the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-    UCameraComponent* FollowCamera;
+	UCameraComponent* FollowCamera;
 
 	//Base turn rate [dg/sec]
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -90,7 +92,7 @@ private:
 
 	//VFX from gunshots
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
-    UParticleSystem* MuzzleFlash_Particles;
+	UParticleSystem* MuzzleFlash_Particles;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* BulletHit_Particles;
@@ -103,7 +105,11 @@ private:
 
 	float CameraDefaultFOV;
 	float CameraZoomedFOV;
-	
+	float CameraCurrentFOV;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float ZoomInterpolationSpeed;
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }

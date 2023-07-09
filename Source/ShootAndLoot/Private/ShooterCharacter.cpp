@@ -18,16 +18,18 @@ AShooterCharacter::AShooterCharacter() :
 	BaseLookUpRate(45.f),
 	bIsAiming(false),
 	CameraDefaultFOV(0.f),
-	CameraZoomedFOV(50.f)
+	CameraZoomedFOV(35.f),
+	CameraCurrentFOV(0.f),
+	ZoomInterpolationSpeed(20.f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	//CAMERA ARM
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent); //Camera follows the player at this distance behind the controller
-	CameraBoom->TargetArmLength = 300.f; //Rotate the arm based on the controller
+	CameraBoom->TargetArmLength = 180.f; //Rotate the arm based on the controller
 	CameraBoom->bUsePawnControlRotation = true;
-	CameraBoom->SocketOffset = FVector(0.f, 50.f, 50.f);
+	CameraBoom->SocketOffset = FVector(0.f, 50.f, 70.f);
 
 	//CAMERA
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -54,8 +56,76 @@ void AShooterCharacter::BeginPlay()
 	if (FollowCamera)
 	{
 		CameraDefaultFOV = GetFollowCamera()->FieldOfView;
+		CameraCurrentFOV = CameraDefaultFOV;
 	}
 }
+
+void AShooterCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	ZoomInterpolation(DeltaSeconds);
+}
+
+#pragma region UTILITY METHODS
+
+bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
+{
+	//Get Current Size of the viewport
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	//Get Screen location of Crosshair
+	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	CrosshairLocation.Y -= 50.f;
+
+	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldDirection;
+
+	//Get world position and direction of CrossHairs
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this,
+		                                                               0),
+	                                                               CrosshairLocation,
+	                                                               CrosshairWorldPosition,
+	                                                               CrosshairWorldDirection);
+
+	if (bScreenToWorld)
+	{
+		FHitResult ScreenTraceHit;
+		const FVector Start{CrosshairWorldPosition};
+		const FVector End{CrosshairWorldPosition + CrosshairWorldDirection * 50'000.f};
+
+		OutBeamLocation = End;
+
+		//Trace between the crosshairs and the object
+		GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECC_Visibility);
+
+		//If there was a hit between Weapon Barrel + object -> Change BeamEndpoint to that place and spawn particles
+		if (ScreenTraceHit.bBlockingHit)
+		{
+			OutBeamLocation = ScreenTraceHit.Location;
+
+			FHitResult WeaponTraceHit;
+			const FVector WeaponTraceStart{MuzzleSocketLocation};
+			const FVector WeaponTraceEnd{OutBeamLocation};
+			GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECC_Visibility);
+
+			//If there is an object between the barrel and beam and the CrossHairs are not exact -> change the end point
+			if (WeaponTraceHit.bBlockingHit)
+			{
+				OutBeamLocation = WeaponTraceHit.Location;
+			}
+		}
+		return true;
+	}
+	return false; //In case de-projection fails
+}
+#pragma endregion 
+
+#pragma region INPUT METHODS
 
 void AShooterCharacter::MoveForward(const float Value)
 {
@@ -127,61 +197,6 @@ void AShooterCharacter::FireWeapon()
 	}
 }
 
-bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation)
-{
-	//Get Current Size of the viewport
-	FVector2D ViewportSize;
-	if (GEngine && GEngine->GameViewport)
-	{
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
-	}
-
-	//Get Screen location of Crosshair
-	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
-	CrosshairLocation.Y -= 50.f;
-
-	FVector CrosshairWorldPosition;
-	FVector CrosshairWorldDirection;
-
-	//Get world position and direction of CrossHairs
-	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this,
-		                                                               0),
-	                                                               CrosshairLocation,
-	                                                               CrosshairWorldPosition,
-	                                                               CrosshairWorldDirection);
-
-	if (bScreenToWorld)
-	{
-		FHitResult ScreenTraceHit;
-		const FVector Start{CrosshairWorldPosition};
-		const FVector End{CrosshairWorldPosition + CrosshairWorldDirection * 50'000.f};
-
-		OutBeamLocation = End;
-
-		//Trace between the crosshairs and the object
-		GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECC_Visibility);
-
-		//If there was a hit between Weapon Barrel + object -> Change BeamEndpoint to that place and spawn particles
-		if (ScreenTraceHit.bBlockingHit)
-		{
-			OutBeamLocation = ScreenTraceHit.Location;
-
-			FHitResult WeaponTraceHit;
-			const FVector WeaponTraceStart{MuzzleSocketLocation};
-			const FVector WeaponTraceEnd{OutBeamLocation};
-			GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECC_Visibility);
-
-			//If there is an object between the barrel and beam and the CrossHairs are not exact -> change the end point
-			if (WeaponTraceHit.bBlockingHit)
-			{
-				OutBeamLocation = WeaponTraceHit.Location;
-			}
-		}
-		return true;
-	}
-	return false; //In case de-projection fails
-}
-
 void AShooterCharacter::AimingButtonPressed()
 {
 	bIsAiming = true;
@@ -194,6 +209,15 @@ void AShooterCharacter::AimingButtonReleased()
 	GetFollowCamera()->SetFieldOfView(CameraDefaultFOV);
 }
 
+void AShooterCharacter::ZoomInterpolation(const float DeltaTime)
+{
+	CameraCurrentFOV = bIsAiming?
+	FMath::FInterpTo(CameraCurrentFOV, CameraZoomedFOV, DeltaTime, ZoomInterpolationSpeed) :
+	FMath::FInterpTo(CameraCurrentFOV, CameraDefaultFOV, DeltaTime, ZoomInterpolationSpeed);
+
+	GetFollowCamera()->SetFieldOfView(CameraCurrentFOV);
+}
+
 void AShooterCharacter::TurnAtRate(float Rate)
 {
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
@@ -203,8 +227,9 @@ void AShooterCharacter::LookUpAtRate(float Rate)
 {
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
+#pragma endregion
 
-// Called to bind functionality to input
+// BIND INPUT WITH ACTIONS
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
