@@ -14,9 +14,24 @@
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
+	//Base Rates
 	BaseTurnRate(45.f),
 	BaseLookUpRate(45.f),
+
+	//Turn rates for aiming/not aiming
+	HipTurnRate(90.f),
+	HipLookUpRate(90.f),
+	AimingTurnRate(20.f),
+	AimingLookUpRate(20.f),
+
+	//Mouse look sensitivity scale factors
+	MouseHipTurnRate(1.f),
+	MouseHipLookUpRate(1.f),
+	MouseAimingLookUpRate(0.2f),
+	MouseAimingTurnRate(0.2f),
 	bIsAiming(false),
+
+	//Camera FOV
 	CameraDefaultFOV(0.f),
 	CameraZoomedFOV(35.f),
 	CameraCurrentFOV(0.f),
@@ -65,6 +80,7 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	ZoomInterpolation(DeltaSeconds);
+	SetLookUpRates();
 }
 
 #pragma region UTILITY METHODS
@@ -123,7 +139,7 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 	}
 	return false; //In case de-projection fails
 }
-#pragma endregion 
+#pragma endregion
 
 #pragma region INPUT METHODS
 
@@ -211,11 +227,17 @@ void AShooterCharacter::AimingButtonReleased()
 
 void AShooterCharacter::ZoomInterpolation(const float DeltaTime)
 {
-	CameraCurrentFOV = bIsAiming?
-	FMath::FInterpTo(CameraCurrentFOV, CameraZoomedFOV, DeltaTime, ZoomInterpolationSpeed) :
-	FMath::FInterpTo(CameraCurrentFOV, CameraDefaultFOV, DeltaTime, ZoomInterpolationSpeed);
+	CameraCurrentFOV = bIsAiming
+		                   ? FMath::FInterpTo(CameraCurrentFOV, CameraZoomedFOV, DeltaTime, ZoomInterpolationSpeed)
+		                   : FMath::FInterpTo(CameraCurrentFOV, CameraDefaultFOV, DeltaTime, ZoomInterpolationSpeed);
 
 	GetFollowCamera()->SetFieldOfView(CameraCurrentFOV);
+}
+
+void AShooterCharacter::SetLookUpRates()
+{
+	BaseTurnRate = bIsAiming ? AimingTurnRate : HipTurnRate;
+	BaseLookUpRate = bIsAiming ? AimingLookUpRate : HipLookUpRate;
 }
 
 void AShooterCharacter::TurnAtRate(float Rate)
@@ -226,6 +248,20 @@ void AShooterCharacter::TurnAtRate(float Rate)
 void AShooterCharacter::LookUpAtRate(float Rate)
 {
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AShooterCharacter::Turn(float const Value)
+{
+	float TurnScaleFactor{};
+	TurnScaleFactor = bIsAiming? MouseAimingTurnRate : MouseHipTurnRate;
+	AddControllerYawInput(Value * TurnScaleFactor);
+}
+
+void AShooterCharacter::LookUp(float const Value)
+{
+	float LookUpScaleFactor{};
+	LookUpScaleFactor = bIsAiming? MouseAimingLookUpRate : MouseHipLookUpRate;
+	AddControllerPitchInput(Value * LookUpScaleFactor);
 }
 #pragma endregion
 
@@ -245,8 +281,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AShooterCharacter::LookUpAtRate);
 
 	//Mouse turns
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("Turn", this, &AShooterCharacter::Turn);
+	PlayerInputComponent->BindAxis("LookUp", this, &AShooterCharacter::LookUp);
 
 	//Actions
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
