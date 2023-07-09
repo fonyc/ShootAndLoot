@@ -63,6 +63,11 @@ AShooterCharacter::AShooterCharacter() :
 	GetCharacterMovement()->AirControl = .2f;
 }
 
+float AShooterCharacter::GetCrosshairSpreadMultiplier() const
+{
+	return CrosshairSpreadMultiplier;
+}
+
 // Called when the game starts or when spawned
 void AShooterCharacter::BeginPlay()
 {
@@ -80,7 +85,10 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	ZoomInterpolation(DeltaSeconds);
+	
 	SetLookUpRates();
+	
+	CalculateCrosshairSpread(DeltaSeconds);
 }
 
 #pragma region UTILITY METHODS
@@ -240,6 +248,18 @@ void AShooterCharacter::SetLookUpRates()
 	BaseLookUpRate = bIsAiming ? AimingLookUpRate : HipLookUpRate;
 }
 
+void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
+{
+	const FVector2D WalkSpeedRange{0.f, 600.f};
+	const FVector2D VelocityMultiplierRange{0.f, 1.f};
+	FVector Velocity{GetVelocity()};
+	Velocity.Z = 0.f;
+
+	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
+
+	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor;
+}
+
 void AShooterCharacter::TurnAtRate(float Rate)
 {
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
@@ -253,14 +273,14 @@ void AShooterCharacter::LookUpAtRate(float Rate)
 void AShooterCharacter::Turn(float const Value)
 {
 	float TurnScaleFactor{};
-	TurnScaleFactor = bIsAiming? MouseAimingTurnRate : MouseHipTurnRate;
+	TurnScaleFactor = bIsAiming ? MouseAimingTurnRate : MouseHipTurnRate;
 	AddControllerYawInput(Value * TurnScaleFactor);
 }
 
 void AShooterCharacter::LookUp(float const Value)
 {
 	float LookUpScaleFactor{};
-	LookUpScaleFactor = bIsAiming? MouseAimingLookUpRate : MouseHipLookUpRate;
+	LookUpScaleFactor = bIsAiming ? MouseAimingLookUpRate : MouseHipLookUpRate;
 	AddControllerPitchInput(Value * LookUpScaleFactor);
 }
 #pragma endregion
