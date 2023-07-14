@@ -35,7 +35,15 @@ AShooterCharacter::AShooterCharacter() :
 	CameraDefaultFOV(0.f),
 	CameraZoomedFOV(35.f),
 	CameraCurrentFOV(0.f),
-	ZoomInterpolationSpeed(20.f)
+	ZoomInterpolationSpeed(20.f),
+
+	//Croshair spread factors
+	CrosshairSpreadMultiplier(0.f),
+	CrosshairVelocityFactor(0.f),
+	CrosshairInAirFactor(0.f),
+	CrosshairAimingFactor(0.f),
+	CrosshairShootingFactor(0.f)
+
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -250,6 +258,7 @@ void AShooterCharacter::SetLookUpRates()
 
 void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 {
+	//Calculate Move Spread Factor
 	const FVector2D WalkSpeedRange{0.f, 600.f};
 	const FVector2D VelocityMultiplierRange{0.f, 1.f};
 	FVector Velocity{GetVelocity()};
@@ -258,15 +267,24 @@ void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange,
 	                                                            Velocity.Size());
 
+	//Calculate In Air Spread Factor
 	const bool bIsCharacterGrounded = !GetCharacterMovement()->IsFalling();
-	float InterSpeed = bIsCharacterGrounded ? 30.f : 2.25f;
-	float TargetValue = bIsCharacterGrounded ? 0.f : 2.25f;
+	const float JumpInterpSpeed = bIsCharacterGrounded ? 30.f : 2.25f;
+	const float JumpTargetValue = bIsCharacterGrounded ? 0.f : 2.25f;
 
-	CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, TargetValue, DeltaTime, InterSpeed);
+	CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, JumpTargetValue, DeltaTime, JumpInterpSpeed);
+
+	//Calculate Aiming spread factor
+
+	const float AimInterpSpeed = 30.f;
+	const float AimTargetValue = bIsAiming ? 0.6f : 0.f;
+
+	CrosshairAimingFactor = FMath::FInterpTo(CrosshairAimingFactor, AimTargetValue, DeltaTime, AimInterpSpeed);
 
 	CrosshairSpreadMultiplier = 0.5f +
 		CrosshairVelocityFactor +
-		CrosshairInAirFactor;
+		CrosshairInAirFactor -
+		CrosshairAimingFactor;
 }
 
 void AShooterCharacter::TurnAtRate(float Rate)
