@@ -85,9 +85,9 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	ZoomInterpolation(DeltaSeconds);
-	
+
 	SetLookUpRates();
-	
+
 	CalculateCrosshairSpread(DeltaSeconds);
 }
 
@@ -255,9 +255,18 @@ void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 	FVector Velocity{GetVelocity()};
 	Velocity.Z = 0.f;
 
-	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
+	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange,
+	                                                            Velocity.Size());
 
-	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor;
+	const bool bIsCharacterGrounded = !GetCharacterMovement()->IsFalling();
+	float InterSpeed = bIsCharacterGrounded ? 30.f : 2.25f;
+	float TargetValue = bIsCharacterGrounded ? 0.f : 2.25f;
+
+	CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, TargetValue, DeltaTime, InterSpeed);
+
+	CrosshairSpreadMultiplier = 0.5f +
+		CrosshairVelocityFactor +
+		CrosshairInAirFactor;
 }
 
 void AShooterCharacter::TurnAtRate(float Rate)
