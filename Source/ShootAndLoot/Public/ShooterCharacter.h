@@ -63,6 +63,11 @@ protected:
 	void SetLookUpRates();
 
 	void CalculateCrosshairSpread(float DeltaTime);
+	
+	UFUNCTION()
+	void FinishCrosshairBulletFire();
+
+	void StartCrosshairBulletFire();
 
 	/**
 	 * @brief Called via Input to turn at a given rate
@@ -181,5 +186,9 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Crosshairs, meta = (AllowPrivateAccess = "true"))
 	float CrosshairShootingFactor;
+
+	float ShootTimeDuration;
+	bool bFiringBullet;
+	FTimerHandle CrosshairShootTimer;
 	
 };

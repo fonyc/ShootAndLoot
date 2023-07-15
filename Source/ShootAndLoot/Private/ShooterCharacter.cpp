@@ -42,7 +42,11 @@ AShooterCharacter::AShooterCharacter() :
 	CrosshairVelocityFactor(0.f),
 	CrosshairInAirFactor(0.f),
 	CrosshairAimingFactor(0.f),
-	CrosshairShootingFactor(0.f)
+	CrosshairShootingFactor(0.f),
+
+	//Bullet fire timer variables
+	ShootTimeDuration(0.05f),
+	bFiringBullet(false)
 
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -112,7 +116,6 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 
 	//Get Screen location of Crosshair
 	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
-	CrosshairLocation.Y -= 50.f;
 
 	FVector CrosshairWorldPosition;
 	FVector CrosshairWorldDirection;
@@ -218,6 +221,9 @@ void AShooterCharacter::FireWeapon()
 				Beam->SetVectorParameter(FName("Target"), BeamEnd);
 			}
 		}
+
+		//Start the spread from firing the weapon
+		StartCrosshairBulletFire();
 	}
 
 	//Play the animation montage of firing
@@ -281,10 +287,33 @@ void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 
 	CrosshairAimingFactor = FMath::FInterpTo(CrosshairAimingFactor, AimTargetValue, DeltaTime, AimInterpSpeed);
 
+	//Calculate Shooting spread factor (true 0.05 seconds after firing)
+	const float ShootInterpSpeed = 60.f;
+	const float ShootTargetValue = bFiringBullet? 0.3f : 0.f;
+	
+	CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, ShootTargetValue, DeltaTime, ShootInterpSpeed);
+	
 	CrosshairSpreadMultiplier = 0.5f +
 		CrosshairVelocityFactor +
 		CrosshairInAirFactor -
-		CrosshairAimingFactor;
+		CrosshairAimingFactor +
+		CrosshairShootingFactor;
+}
+
+void AShooterCharacter::FinishCrosshairBulletFire()
+{
+	bFiringBullet = false;
+}
+
+void AShooterCharacter::StartCrosshairBulletFire()
+{
+	bFiringBullet = true;
+
+	GetWorldTimerManager().SetTimer(
+		CrosshairShootTimer,
+		this,
+		&AShooterCharacter::FinishCrosshairBulletFire,
+		ShootTimeDuration);
 }
 
 void AShooterCharacter::TurnAtRate(float Rate)
