@@ -63,6 +63,14 @@ protected:
 	void SetLookUpRates();
 
 	void CalculateCrosshairSpread(float DeltaTime);
+
+	void FireButtonPressed();
+	void FireButtonReleased();
+
+	void StartFireTimer();
+	
+	UFUNCTION()
+	void AutoFireReset();
 	
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
@@ -190,5 +198,16 @@ private:
 	float ShootTimeDuration;
 	bool bFiringBullet;
 	FTimerHandle CrosshairShootTimer;
-	
+
+	//Left mouse button or right console trigger is pressed
+	bool bFireButtonIsPressed;
+
+	//True when the character is able to fire
+	bool bAbleToFire;
+
+	//Fire rate
+	float AutomaticFireRate;
+
+	//Timer that measures the time between bullets
+	FTimerHandle AutoFireTimer;
 };

@@ -37,7 +37,7 @@ AShooterCharacter::AShooterCharacter() :
 	CameraCurrentFOV(0.f),
 	ZoomInterpolationSpeed(20.f),
 
-	//Croshair spread factors
+	//Crosshair spread factors
 	CrosshairSpreadMultiplier(0.f),
 	CrosshairVelocityFactor(0.f),
 	CrosshairInAirFactor(0.f),
@@ -46,7 +46,13 @@ AShooterCharacter::AShooterCharacter() :
 
 	//Bullet fire timer variables
 	ShootTimeDuration(0.05f),
-	bFiringBullet(false)
+	bFiringBullet(false),
+
+	//Fire rates
+	bFireButtonIsPressed(false),
+	bAbleToFire(true),
+	AutomaticFireRate(0.1f)
+
 
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -135,7 +141,7 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 
 		OutBeamLocation = End;
 
-		//Trace between the crosshairs and the object
+		//Trace between the Crosshair and the object
 		GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECC_Visibility);
 
 		//If there was a hit between Weapon Barrel + object -> Change BeamEndpoint to that place and spawn particles
@@ -289,15 +295,51 @@ void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
 
 	//Calculate Shooting spread factor (true 0.05 seconds after firing)
 	const float ShootInterpSpeed = 60.f;
-	const float ShootTargetValue = bFiringBullet? 0.3f : 0.f;
-	
+	const float ShootTargetValue = bFiringBullet ? 0.3f : 0.f;
+
 	CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, ShootTargetValue, DeltaTime, ShootInterpSpeed);
-	
+
 	CrosshairSpreadMultiplier = 0.5f +
 		CrosshairVelocityFactor +
 		CrosshairInAirFactor -
 		CrosshairAimingFactor +
 		CrosshairShootingFactor;
+}
+
+void AShooterCharacter::FireButtonPressed()
+{
+	bFireButtonIsPressed = true;
+	StartFireTimer();
+}
+
+void AShooterCharacter::FireButtonReleased()
+{
+	bFireButtonIsPressed = false;
+}
+
+//Called when FireButton is pressed or in AutoFireReset if we still pressing fire button
+void AShooterCharacter::StartFireTimer()
+{
+	if (bAbleToFire)
+	{
+		FireWeapon();
+		bAbleToFire = false;
+		GetWorldTimerManager().SetTimer(
+			AutoFireTimer,
+			this,
+			&AShooterCharacter::AutoFireReset,
+			AutomaticFireRate);
+	}
+}
+
+//Called as callback when the StartFireTimer is over
+void AShooterCharacter::AutoFireReset()
+{
+	bAbleToFire = true;
+	if (bFireButtonIsPressed)
+	{
+		StartFireTimer();
+	}
 }
 
 void AShooterCharacter::FinishCrosshairBulletFire()
@@ -328,15 +370,13 @@ void AShooterCharacter::LookUpAtRate(float Rate)
 
 void AShooterCharacter::Turn(float const Value)
 {
-	float TurnScaleFactor{};
-	TurnScaleFactor = bIsAiming ? MouseAimingTurnRate : MouseHipTurnRate;
+	const float TurnScaleFactor = bIsAiming ? MouseAimingTurnRate : MouseHipTurnRate;
 	AddControllerYawInput(Value * TurnScaleFactor);
 }
 
 void AShooterCharacter::LookUp(float const Value)
 {
-	float LookUpScaleFactor{};
-	LookUpScaleFactor = bIsAiming ? MouseAimingLookUpRate : MouseHipLookUpRate;
+	const float LookUpScaleFactor = bIsAiming ? MouseAimingLookUpRate : MouseHipLookUpRate;
 	AddControllerPitchInput(Value * LookUpScaleFactor);
 }
 #pragma endregion
@@ -363,7 +403,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	//Actions
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireWeapon);
+	PlayerInputComponent->BindAction("FireButton", IE_Pressed, this, &AShooterCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("FireButton", IE_Released, this, &AShooterCharacter::FireButtonReleased);
 	PlayerInputComponent->BindAction("AimingButton", IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction("AimingButton", IE_Released, this, &AShooterCharacter::AimingButtonReleased);
 }
