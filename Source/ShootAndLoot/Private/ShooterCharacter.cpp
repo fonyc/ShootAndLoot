@@ -10,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "DrawDebugHelpers.h"
+#include "Item.h"
+#include "Components/WidgetComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
@@ -107,6 +109,18 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	SetLookUpRates();
 
 	CalculateCrosshairSpread(DeltaSeconds);
+
+	FHitResult ItemTraceResult;
+	TraceUnderCrosshairs(ItemTraceResult);
+	if(ItemTraceResult.bBlockingHit)
+	{
+		AItem* HitItem = Cast<AItem>(ItemTraceResult.GetActor());
+		//Ensure Cast success and widget availability to show it
+		if(HitItem && HitItem->GetPickupWidget())
+		{
+			HitItem->GetPickupWidget()->SetVisibility(true);
+		}
+	}
 }
 
 #pragma region UTILITY METHODS
@@ -340,6 +354,37 @@ void AShooterCharacter::AutoFireReset()
 	{
 		StartFireTimer();
 	}
+}
+
+bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult)
+{
+	//Get viewport size
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	//Get Screen location of Crosshair
+	const FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldDirection;
+
+	//Get world position and direction of CrossHairs
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this,
+		                                                               0),
+	                                                               CrosshairLocation,
+	                                                               CrosshairWorldPosition,
+	                                                               CrosshairWorldDirection);
+
+	if (bScreenToWorld)
+	{
+		const FVector Start{CrosshairWorldPosition};
+		const FVector End{Start + CrosshairWorldDirection * 50'000.f};
+		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECC_Visibility);
+	}
+	
+	return OutHitResult.bBlockingHit? true : false;
 }
 
 void AShooterCharacter::FinishCrosshairBulletFire()

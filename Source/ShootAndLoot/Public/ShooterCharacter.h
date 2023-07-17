@@ -54,7 +54,7 @@ protected:
 	void FireWeapon();
 
 	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
-
+	
 	void AimingButtonPressed();
 	void AimingButtonReleased();
 
@@ -71,6 +71,8 @@ protected:
 	
 	UFUNCTION()
 	void AutoFireReset();
+
+	bool TraceUnderCrosshairs(FHitResult& OutHitResult);
 	
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
