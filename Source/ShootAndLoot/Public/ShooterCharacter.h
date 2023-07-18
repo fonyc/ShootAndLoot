@@ -53,7 +53,7 @@ protected:
 	//Called when Firing button is pressed
 	void FireWeapon();
 
-	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
+	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutHitLocation);
 	
 	void AimingButtonPressed();
 	void AimingButtonReleased();
@@ -72,7 +72,7 @@ protected:
 	UFUNCTION()
 	void AutoFireReset();
 
-	bool TraceUnderCrosshairs(FHitResult& OutHitResult);
+	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
 	
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
