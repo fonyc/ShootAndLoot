@@ -44,6 +44,7 @@ void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	if(AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor))
 	{
 		ShooterCharacter->IncrementOverlappedItemCount(1);
+		SetItemTraceability(true);
 	}
 }
 
@@ -55,6 +56,7 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	{
 		ShooterCharacter->IncrementOverlappedItemCount(-1);
 		GetPickupWidget()->SetVisibility(false);
+		SetItemTraceability(false);
 	}
 }
 

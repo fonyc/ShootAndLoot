@@ -378,7 +378,10 @@ void AShooterCharacter::TraceForItems()
 			//Ensure Cast success and widget availability to show it
 			if (HitItem && HitItem->GetPickupWidget())
 			{
-				HitItem->GetPickupWidget()->SetVisibility(true);
+				if(HitItem->GetItemTraceability())
+				{
+					HitItem->GetPickupWidget()->SetVisibility(true);
+				}
 			}
 
 			if (LastItemTraced)

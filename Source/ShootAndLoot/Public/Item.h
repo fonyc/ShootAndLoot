@@ -53,6 +53,11 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item Properties", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* SphereComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item Properties", meta = (AllowPrivateAccess = "true"))
+	bool CanBeTraced;
+
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
+	FORCEINLINE void SetItemTraceability(const bool Traceability) { CanBeTraced = Traceability; }
+	FORCEINLINE bool GetItemTraceability() const { return CanBeTraced; }
 };
