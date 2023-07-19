@@ -9,7 +9,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
-#include "DrawDebugHelpers.h"
 #include "Item.h"
 #include "Components/WidgetComponent.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -88,7 +87,6 @@ float AShooterCharacter::GetCrosshairSpreadMultiplier() const
 	return CrosshairSpreadMultiplier;
 }
 
-// Called when the game starts or when spawned
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
