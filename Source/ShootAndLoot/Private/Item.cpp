@@ -54,6 +54,7 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	if(AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor))
 	{
 		ShooterCharacter->IncrementOverlappedItemCount(-1);
+		GetPickupWidget()->SetVisibility(false);
 	}
 }
 

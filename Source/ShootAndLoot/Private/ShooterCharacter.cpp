@@ -116,9 +116,8 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	SetLookUpRates();
 
 	CalculateCrosshairSpread(DeltaSeconds);
-	
-	TraceForItems();
 
+	TraceForItems();
 }
 
 #pragma region UTILITY METHODS
@@ -371,14 +370,31 @@ void AShooterCharacter::TraceForItems()
 		FHitResult ItemTraceResult;
 		FVector HitLocation;
 		TraceUnderCrosshairs(ItemTraceResult, HitLocation);
-		
+
 		if (ItemTraceResult.bBlockingHit)
 		{
+			AItem* HitItem = Cast<AItem>(ItemTraceResult.GetActor());
+			
 			//Ensure Cast success and widget availability to show it
-			if (const AItem* HitItem = Cast<AItem>(ItemTraceResult.GetActor()); HitItem && HitItem->GetPickupWidget())
+			if (HitItem && HitItem->GetPickupWidget())
 			{
 				HitItem->GetPickupWidget()->SetVisibility(true);
 			}
+
+			if (LastItemTraced)
+			{
+				if (HitItem != LastItemTraced)
+				{
+					//We stopped looking the item to look another different
+					LastItemTraced->GetPickupWidget()->SetVisibility(false);
+				}
+			}
+			LastItemTraced = HitItem;
+		}
+		else if (LastItemTraced)
+		{
+			//No longer tracing items, disable widgets
+			LastItemTraced->GetPickupWidget()->SetVisibility(false);
 		}
 	}
 }

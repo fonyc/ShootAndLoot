@@ -224,4 +224,7 @@ private:
 
 	//Number of overlapped AItems
 	int8 OverlappedItemCount;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = _WRITE_ABORT_MSG, meta = (AllowPrivateAccess = true))
+	class AItem* LastItemTraced;
 };
