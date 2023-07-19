@@ -2,6 +2,7 @@
 
 #include "Item.h"
 
+#include "ShooterCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
@@ -39,13 +40,21 @@ void AItem::BeginPlay()
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
+	if(!OtherActor) return;
+	if(AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor))
+	{
+		ShooterCharacter->IncrementOverlappedItemCount(1);
+	}
 }
 
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	
+	if(!OtherActor) return;
+	if(AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor))
+	{
+		ShooterCharacter->IncrementOverlappedItemCount(-1);
+	}
 }
 
 

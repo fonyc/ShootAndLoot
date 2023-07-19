@@ -30,9 +30,13 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool GetIsAiming() const { return bIsAiming; }
+	FORCEINLINE int8 GetOverlappedItemCount() const { return OverlappedItemCount; }
 
 	UFUNCTION(BlueprintCallable)
 	float GetCrosshairSpreadMultiplier() const;
+
+	//Add/subtract items from OverlappedItemCount and updates bShouldTraceForItems 
+	void IncrementOverlappedItemCount(int8 Amount);
 
 protected:
 	virtual void BeginPlay() override;
@@ -73,6 +77,8 @@ protected:
 	void AutoFireReset();
 
 	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
+
+	void TraceForItems();
 	
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
@@ -212,4 +218,10 @@ private:
 
 	//Timer that measures the time between bullets
 	FTimerHandle AutoFireTimer;
+
+	//True if we should trace on tick for items
+	bool bShouldTraceForItems;
+
+	//Number of overlapped AItems
+	int8 OverlappedItemCount;
 };

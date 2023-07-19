@@ -52,7 +52,10 @@ AShooterCharacter::AShooterCharacter() :
 	//Fire rates
 	bFireButtonIsPressed(false),
 	bAbleToFire(true),
-	AutomaticFireRate(0.1f)
+	AutomaticFireRate(0.1f),
+
+	//Trace variables
+	bShouldTraceForItems(false)
 
 
 {
@@ -87,6 +90,12 @@ float AShooterCharacter::GetCrosshairSpreadMultiplier() const
 	return CrosshairSpreadMultiplier;
 }
 
+void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount)
+{
+	OverlappedItemCount = OverlappedItemCount + Amount <= 0 ? 0 : OverlappedItemCount + Amount;
+	bShouldTraceForItems = OverlappedItemCount <= 0 ? false : true;
+}
+
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -107,18 +116,9 @@ void AShooterCharacter::Tick(float DeltaSeconds)
 	SetLookUpRates();
 
 	CalculateCrosshairSpread(DeltaSeconds);
+	
+	TraceForItems();
 
-	FHitResult ItemTraceResult;
-	FVector HitLocation;
-	TraceUnderCrosshairs(ItemTraceResult, HitLocation);
-	if (ItemTraceResult.bBlockingHit)
-	{
-		//Ensure Cast success and widget availability to show it
-		if (const AItem* HitItem = Cast<AItem>(ItemTraceResult.GetActor()); HitItem && HitItem->GetPickupWidget())
-		{
-			HitItem->GetPickupWidget()->SetVisibility(true);
-		}
-	}
 }
 
 #pragma region UTILITY METHODS
@@ -136,9 +136,9 @@ bool AShooterCharacter::GetBeamEndLocation(const FVector& MuzzleSocketLocation, 
 
 	//Perform the second trace, from barrel to check if there is a blocking object
 	FHitResult WeaponTraceHit;
-	const FVector WeaponTraceStart { MuzzleSocketLocation };
-	const FVector StartToEnd { OutBeamLocation - MuzzleSocketLocation }; 
-	const FVector WeaponTraceEnd { MuzzleSocketLocation + StartToEnd * 1.25f };
+	const FVector WeaponTraceStart{MuzzleSocketLocation};
+	const FVector StartToEnd{OutBeamLocation - MuzzleSocketLocation};
+	const FVector WeaponTraceEnd{MuzzleSocketLocation + StartToEnd * 1.25f};
 	GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECC_Visibility);
 
 	//If there is an object between the barrel and beam and the CrossHairs are not exact -> change the end point
@@ -362,6 +362,25 @@ bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& 
 		}
 	}
 	return false;
+}
+
+void AShooterCharacter::TraceForItems()
+{
+	if (bShouldTraceForItems)
+	{
+		FHitResult ItemTraceResult;
+		FVector HitLocation;
+		TraceUnderCrosshairs(ItemTraceResult, HitLocation);
+		
+		if (ItemTraceResult.bBlockingHit)
+		{
+			//Ensure Cast success and widget availability to show it
+			if (const AItem* HitItem = Cast<AItem>(ItemTraceResult.GetActor()); HitItem && HitItem->GetPickupWidget())
+			{
+				HitItem->GetPickupWidget()->SetVisibility(true);
+			}
+		}
+	}
 }
 
 void AShooterCharacter::FinishCrosshairBulletFire()
