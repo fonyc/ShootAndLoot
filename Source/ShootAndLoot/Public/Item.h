@@ -6,6 +6,16 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 
+UENUM(BlueprintType)
+enum class EItemRarity : uint8
+{
+	E_Common = 0 UMETA(DisplayName="Common"),
+	E_Uncommon = 1 UMETA(DisplayName="Uncommon"),
+	E_Rare = 2 UMETA(DisplayName="Rare"),
+	E_Epic = 3 UMETA(DisplayName="Epic"),
+	E_Legendary = 4 UMETA(DisplayName="Legendary"),
+};
+
 UCLASS()
 class SHOOTANDLOOT_API AItem : public AActor
 {
@@ -21,20 +31,19 @@ protected:
 
 	UFUNCTION()
 	void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult);
+	                     AActor* OtherActor,
+	                     UPrimitiveComponent* OtherComp,
+	                     int32 OtherBodyIndex,
+	                     bool bFromSweep,
+	                     const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex);
+	                        AActor* OtherActor,
+	                        UPrimitiveComponent* OtherComp,
+	                        int32 OtherBodyIndex);
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
@@ -55,6 +64,15 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item Properties", meta = (AllowPrivateAccess = "true"))
 	bool CanBeTraced;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item Properties", meta = (AllowPrivateAccess = "true"))
+	FString ItemName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Item Properties", meta = (AllowPrivateAccess = "true"))
+	int32 ItemCount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item Properties", meta = (AllowPrivateAccess = "true"))
+	EItemRarity ItemRarity;
 
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }

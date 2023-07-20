@@ -7,7 +7,10 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 
-AItem::AItem()
+AItem::AItem():
+	ItemName(FString("Default")),
+	ItemCount(0),
+	ItemRarity(EItemRarity::E_Common)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -31,17 +34,21 @@ void AItem::BeginPlay()
 	Super::BeginPlay();
 
 	//Hide item at start
-	PickupWidget->SetVisibility(false);
+	if(PickupWidget)
+	{
+		PickupWidget->SetVisibility(false);
+	}
 
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
 	SphereComponent->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
 }
 
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                            UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                            const FHitResult& SweepResult)
 {
-	if(!OtherActor) return;
-	if(AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor))
+	if (!OtherActor) return;
+	if (AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor))
 	{
 		ShooterCharacter->IncrementOverlappedItemCount(1);
 		SetItemTraceability(true);
@@ -49,17 +56,16 @@ void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 }
 
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if(!OtherActor) return;
-	if(AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor))
+	if (!OtherActor) return;
+	if (AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor))
 	{
 		ShooterCharacter->IncrementOverlappedItemCount(-1);
 		GetPickupWidget()->SetVisibility(false);
 		SetItemTraceability(false);
 	}
 }
-
 
 void AItem::Tick(float DeltaTime)
 {
