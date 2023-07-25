@@ -43,6 +43,8 @@ protected:
 	                        UPrimitiveComponent* OtherComp,
 	                        int32 OtherBodyIndex);
 
+	void SetActiveStars(EItemRarity Rarity);
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -74,6 +76,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item Properties", meta = (AllowPrivateAccess = "true"))
 	EItemRarity ItemRarity;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item Properties", meta = (AllowPrivateAccess = "true"))
+	TArray<bool> ActiveStars;
+	
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
 	FORCEINLINE void SetItemTraceability(const bool Traceability) { CanBeTraced = Traceability; }

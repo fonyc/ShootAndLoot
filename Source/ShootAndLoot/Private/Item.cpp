@@ -34,10 +34,12 @@ void AItem::BeginPlay()
 	Super::BeginPlay();
 
 	//Hide item at start
-	if(PickupWidget)
+	if (PickupWidget)
 	{
 		PickupWidget->SetVisibility(false);
 	}
+
+	SetActiveStars(ItemRarity);
 
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
 	SphereComponent->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
@@ -64,6 +66,15 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 		ShooterCharacter->IncrementOverlappedItemCount(-1);
 		GetPickupWidget()->SetVisibility(false);
 		SetItemTraceability(false);
+	}
+}
+
+void AItem::SetActiveStars(EItemRarity Rarity)
+{
+	const int32 Limit = static_cast<int32>(Rarity);
+	for (int32 x = 0; x < Limit; ++x)
+	{
+		ActiveStars[x] = true;
 	}
 }
 
