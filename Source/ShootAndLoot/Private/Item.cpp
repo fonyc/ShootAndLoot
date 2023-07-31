@@ -71,8 +71,13 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 
 void AItem::SetActiveStars(EItemRarity Rarity)
 {
+	ActiveStars.Reserve(5);
+	for (int32 x = 0; x < 5; ++x)
+	{
+		ActiveStars.Add(false);
+	}
 	const int32 Limit = static_cast<int32>(Rarity);
-	for (int32 x = 0; x < Limit; ++x)
+	for (int32 x = 0; x < Limit + 1; ++x)
 	{
 		ActiveStars[x] = true;
 	}

@@ -83,4 +83,5 @@ public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
 	FORCEINLINE void SetItemTraceability(const bool Traceability) { CanBeTraced = Traceability; }
 	FORCEINLINE bool GetItemTraceability() const { return CanBeTraced; }
+	TArray<bool> GetActiveStars() const { return ActiveStars; } 
 };
