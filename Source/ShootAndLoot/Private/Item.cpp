@@ -69,17 +69,21 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	}
 }
 
-void AItem::SetActiveStars(EItemRarity Rarity)
+void AItem::SetActiveStars(const EItemRarity& Rarity)
 {
-	ActiveStars.Reserve(5);
-	for (int32 x = 0; x < 5; ++x)
+	const int32 CastedRarity = static_cast<int32>(Rarity);
+
+	static int32 EnumMaxFields = 0;
+	for (EItemRarity Item : TEnumRange<EItemRarity>())
 	{
-		ActiveStars.Add(false);
+		++EnumMaxFields;
 	}
-	const int32 Limit = static_cast<int32>(Rarity);
-	for (int32 x = 0; x < Limit + 1; ++x)
+	
+	ActiveStars.SetNum(EnumMaxFields);
+	
+	for (int32 x = 0; x < EnumMaxFields; ++x)
 	{
-		ActiveStars[x] = true;
+		ActiveStars[x] = CastedRarity >= x ? true : false; 
 	}
 }
 

@@ -14,7 +14,9 @@ enum class EItemRarity : uint8
 	E_Rare = 2 UMETA(DisplayName="Rare"),
 	E_Epic = 3 UMETA(DisplayName="Epic"),
 	E_Legendary = 4 UMETA(DisplayName="Legendary"),
+	E_Max = 5 UMETA(Hidden)
 };
+ENUM_RANGE_BY_COUNT(EItemRarity, EItemRarity::E_Max);
 
 UCLASS()
 class SHOOTANDLOOT_API AItem : public AActor
@@ -43,7 +45,7 @@ protected:
 	                        UPrimitiveComponent* OtherComp,
 	                        int32 OtherBodyIndex);
 
-	void SetActiveStars(EItemRarity Rarity);
+	void SetActiveStars(const EItemRarity& Rarity);
 
 public:
 	virtual void Tick(float DeltaTime) override;
