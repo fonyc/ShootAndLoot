@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Item.h"
+#include "Weapon.h"
 #include "Components/WidgetComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 
@@ -99,6 +100,8 @@ void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount)
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SpawnDefaultWeapon();
 
 	if (FollowCamera)
 	{
@@ -400,6 +403,18 @@ void AShooterCharacter::TraceForItems()
 			LastItemTraced->GetPickupWidget()->SetVisibility(false);
 		}
 	}
+}
+
+void AShooterCharacter::SpawnDefaultWeapon()
+{
+	if(!DefaultWeaponClass) return;
+
+	AWeapon* DefaultWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+	if(const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket")))
+	{
+		HandSocket->AttachActor(DefaultWeapon, GetMesh());
+	}
+	EquippedWeapon = DefaultWeapon;
 }
 
 void AShooterCharacter::FinishCrosshairBulletFire()

@@ -27,14 +27,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	FORCEINLINE bool GetIsAiming() const { return bIsAiming; }
-	FORCEINLINE int8 GetOverlappedItemCount() const { return OverlappedItemCount; }
-
-	UFUNCTION(BlueprintCallable)
-	float GetCrosshairSpreadMultiplier() const;
-
 	//Add/subtract items from OverlappedItemCount and updates bShouldTraceForItems 
 	void IncrementOverlappedItemCount(int8 Amount);
 
@@ -79,6 +71,8 @@ protected:
 	bool TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation);
 
 	void TraceForItems();
+
+	void SpawnDefaultWeapon();
 	
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
@@ -225,6 +219,24 @@ private:
 	//Number of overlapped AItems
 	int8 OverlappedItemCount;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = _WRITE_ABORT_MSG, meta = (AllowPrivateAccess = true))
+	/** Item hit last frame */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = true))
 	class AItem* LastItemTraced;
+
+	/** Currently Equipped weapon  */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
+	class AWeapon* EquippedWeapon;
+
+	/** Set this in blueprints for the DEFAULT weapon class  */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = true))
+	TSubclassOf<AWeapon> DefaultWeaponClass;
+
+public:
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE bool GetIsAiming() const { return bIsAiming; }
+	FORCEINLINE int8 GetOverlappedItemCount() const { return OverlappedItemCount; }
+
+	UFUNCTION(BlueprintCallable)
+	float GetCrosshairSpreadMultiplier() const;
 };

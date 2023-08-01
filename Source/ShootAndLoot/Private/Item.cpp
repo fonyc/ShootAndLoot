@@ -73,6 +73,7 @@ void AItem::SetActiveStars(const EItemRarity& Rarity)
 {
 	const int32 CastedRarity = static_cast<int32>(Rarity);
 
+	//Calculate max fields inside a Enum
 	static int32 EnumMaxFields = 0;
 	for (EItemRarity Item : TEnumRange<EItemRarity>())
 	{
