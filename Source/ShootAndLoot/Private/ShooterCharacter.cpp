@@ -11,6 +11,8 @@
 #include "Sound/SoundCue.h"
 #include "Item.h"
 #include "Weapon.h"
+#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 
@@ -100,14 +102,14 @@ void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount)
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SpawnDefaultWeapon();
-
+	
 	if (FollowCamera)
 	{
 		CameraDefaultFOV = GetFollowCamera()->FieldOfView;
 		CameraCurrentFOV = CameraDefaultFOV;
 	}
+	
+	EquipWeapon(SpawnDefaultWeapon());
 }
 
 void AShooterCharacter::Tick(float DeltaSeconds)
@@ -405,16 +407,26 @@ void AShooterCharacter::TraceForItems()
 	}
 }
 
-void AShooterCharacter::SpawnDefaultWeapon()
+AWeapon* AShooterCharacter::SpawnDefaultWeapon() const
 {
-	if(!DefaultWeaponClass) return;
+	if(!DefaultWeaponClass) return nullptr;
 
-	AWeapon* DefaultWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+	return GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+}
+
+void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
+{
+	if(!WeaponToEquip) return;
+
+	//Remove weapon collisions
+	WeaponToEquip->GetAreaSphere()->SetCollisionResponseToChannels(ECR_Ignore);
+	WeaponToEquip->GetCollisionBox()->SetCollisionResponseToChannels(ECR_Ignore);
+	
 	if(const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket")))
 	{
-		HandSocket->AttachActor(DefaultWeapon, GetMesh());
+		HandSocket->AttachActor(WeaponToEquip, GetMesh());
 	}
-	EquippedWeapon = DefaultWeapon;
+	EquippedWeapon = WeaponToEquip;
 }
 
 void AShooterCharacter::FinishCrosshairBulletFire()

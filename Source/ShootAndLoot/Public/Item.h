@@ -16,6 +16,7 @@ enum class EItemRarity : uint8
 	E_Legendary = 4 UMETA(DisplayName="Legendary"),
 	E_Max = 5 UMETA(Hidden)
 };
+
 ENUM_RANGE_BY_COUNT(EItemRarity, EItemRarity::E_Max);
 
 UCLASS()
@@ -80,10 +81,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item Properties", meta = (AllowPrivateAccess = "true"))
 	TArray<bool> ActiveStars;
-	
+
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
 	FORCEINLINE void SetItemTraceability(const bool Traceability) { CanBeTraced = Traceability; }
 	FORCEINLINE bool GetItemTraceability() const { return CanBeTraced; }
-	TArray<bool> GetActiveStars() const { return ActiveStars; } 
+	FORCEINLINE USphereComponent* GetAreaSphere() const { return SphereComponent; }
+	FORCEINLINE UBoxComponent* GetCollisionBox() const { return CollisionBox; }
+	TArray<bool> GetActiveStars() const { return ActiveStars; }
 };
